@@ -3,8 +3,32 @@
 #include "../utility.hpp"
 #include <string>
 
+// #include <cstdio>
+// #define CUDIE(result) { \
+//   cudaError_t e = (result); \
+//   if (e != cudaSuccess) { \
+//     printf("%s:%d CUDA runtime error %s\n", __FILE__, __LINE__, cudaGetErrorString(e)); \
+//   }}
+
+// __host__ __device__ void print(const char* msg) {
+//   printf("%s\n", msg);
+// }
+
 void floyd_warshall_cpu(std::vector<std::vector<int>>& d) {
   size_t n = d.size();
+  for(int k = 0; k < n; ++k) {
+    for(int i = 0; i < n; ++i) {
+      for(int j = 0; j < n; ++j) {
+        if(d[i][j] > d[i][k] + d[k][j]) {
+          d[i][j] = d[i][k] + d[k][j];
+        }
+      }
+    }
+  }
+}
+
+
+__global__ void floyd_warshall_gpu(int** d, size_t n) {
   for(int k = 0; k < n; ++k) {
     for(int i = 0; i < n; ++i) {
       for(int j = 0; j < n; ++j) {
@@ -35,8 +59,10 @@ int main(int argc, char** argv) {
   std::cout << "CPU: " << cpu_ms << " ms" << std::endl;
 
   // III. Running Floyd Warshall on GPU (single core).
-
-  // TODO
+  long gpu_ms = benchmark_one_ms([&]{
+    floyd_warshall_gpu<<<1, 1>>>(gpu_distances, n);
+  });
+  std::cout << "GPU: " << gpu_ms << " ms" << std::endl;
 
   // IV. Verifying both give the same result and deallocating.
   check_equal_matrix(cpu_distances, gpu_distances);
