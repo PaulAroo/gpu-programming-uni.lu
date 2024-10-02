@@ -16,6 +16,17 @@ void floyd_warshall_cpu(std::vector<std::vector<int>>& d) {
   }
 }
 
+__global__ void floyd_warshall_gpu(int** d, size_t n, int k) {
+  for(int i = blockIdx.x; i < n; i+=gridDim.x) {
+    for(int j = threadIdx.x; j < n; j+=blockDim.x) {
+      if(d[i][j] > d[i][k] + d[k][j]) {
+        d[i][j] = d[i][k] + d[k][j];
+      }
+    }
+    __syncthreads();
+  }
+}
+
 int main(int argc, char** argv) {
   if(argc != 4) {
     std::cout << "usage: " << argv[0] << " <matrix size> <threads-per-block> <num-blocks>" << std::endl;
@@ -39,6 +50,20 @@ int main(int argc, char** argv) {
   // III. Running Floyd Warshall on the whole GPU grid.
 
   // TODO: call the kernel `n` times for each value of `k` (move the outer loop outside of the kernel).
+  long gpu_ms = benchmark_one_ms([&]{
+    // Iterate over k on the host and launch kernel for each k
+    for (int k = 0; k < n; ++k) {
+      // Launch the kernel with the current k
+      floyd_warshall_gpu<<<num_blocks, threads_per_block>>>(gpu_distances, n, k);
+      // Wait for GPU to finish
+      cudaDeviceSynchronize();
+    }
+    
+  });
+
+  std::cout << "GPU: " << gpu_ms << " ms" << std::endl;
+
+  
 
   // IV. Verifying both give the same result and deallocating.
   check_equal_matrix(cpu_distances, gpu_distances);
