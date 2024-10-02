@@ -13,7 +13,7 @@
 module load system/CUDA
 
 # Compile the code.
-nvcc grid_floyd.cu -arch=sm_70 -std=c++17 -O3 -o grid_min
+nvcc grid_floyd.cu -arch=sm_70 -std=c++17 -O3 -o grid_floyd
 
 # Execute the code. Anything output will be stored in slurm.out (see above).
-./grid_min 1000 16 16
+./grid_floyd 1000 16 16
