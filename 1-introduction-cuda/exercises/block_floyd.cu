@@ -16,6 +16,13 @@ void floyd_warshall_cpu(std::vector<std::vector<int>>& d) {
   }
 }
 
+// Correctness of the algorithm
+// For a fixed k:
+// • No write conflict: each iteration modifies a different memory cell, namely d[i][j].
+// • No read conflict: each iteration reads cell that are not written in, namely d[i][k] and d[k][j].
+// • No enforced order: within the two nested loops, the order of the operations does not
+// matter.
+
 __global__ void floyd_warshall_gpu(int** d, size_t arr_size) {
   for(int k = 0; k < arr_size; ++k) {
     for(int i = 0; i < arr_size; ++i) {
@@ -25,6 +32,7 @@ __global__ void floyd_warshall_gpu(int** d, size_t arr_size) {
         }
       }
     }
+    __syncthreads();
   }
 }
 
