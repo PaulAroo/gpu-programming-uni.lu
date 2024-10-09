@@ -16,6 +16,18 @@ void floyd_warshall_cpu(std::vector<std::vector<int>>& d) {
   }
 }
 
+__global__ void floyd_warshall_gpu(int** d, size_t arr_size) {
+  for(int k = 0; k < arr_size; ++k) {
+    for(int i = 0; i < arr_size; ++i) {
+      for(int j = threadIdx.x; j < arr_size; j += blockDim.x) { //memory access is contiguous (i.e each execution starts out accessing constigous part of the memory)
+        if(d[i][j] > d[i][k] + d[k][j]) {
+          d[i][j] = d[i][k] + d[k][j];
+        }
+      }
+    }
+  }
+}
+
 int main(int argc, char** argv) {
   if(argc != 3) {
     std::cout << "usage: " << argv[0] << " <matrix size> <block size>" << std::endl;
@@ -36,8 +48,10 @@ int main(int argc, char** argv) {
   std::cout << "CPU: " << cpu_ms << " ms" << std::endl;
 
   // III. Running Floyd Warshall on GPU (single block of size `block_size`).
-
-  // TODO
+  long gpu_ms = benchmark_one_ms([&]{
+    floyd_warshall_gpu<<<1, block_size>>>(gpu_distances, n);
+  });
+  std::cout << "GPU: " << gpu_ms << " ms" << std::endl;
 
   // IV. Verifying both give the same result and deallocating.
   check_equal_matrix(cpu_distances, gpu_distances);
