@@ -12,7 +12,7 @@
 module load system/CUDA
 
 # Compile the code.
-nvcc block_floyd.cu -arch=sm_70 -std=c++17 -O3 -o block_floyd
+nvcc block_min.cu -arch=sm_70 -std=c++17 -O3 -o block_min
 
 # Execute the code. Anything output will be stored in slurm.out (see above).
-./block_floyd 1000 16
+./block_min 10 3

@@ -3,17 +3,6 @@
 #include "../utility.hpp"
 #include <string>
 
-// #include <cstdio>
-// #define CUDIE(result) { \
-//   cudaError_t e = (result); \
-//   if (e != cudaSuccess) { \
-//     printf("%s:%d CUDA runtime error %s\n", __FILE__, __LINE__, cudaGetErrorString(e)); \
-//   }}
-
-// __host__ __device__ void print(const char* msg) {
-//   printf("%s\n", msg);
-// }
-
 void floyd_warshall_cpu(std::vector<std::vector<int>>& d) {
   size_t n = d.size();
   for(int k = 0; k < n; ++k) {
@@ -61,6 +50,7 @@ int main(int argc, char** argv) {
   // III. Running Floyd Warshall on GPU (single core).
   long gpu_ms = benchmark_one_ms([&]{
     floyd_warshall_gpu<<<1, 1>>>(gpu_distances, n);
+    CUDIE(cudaDeviceSynchronize());
   });
   std::cout << "GPU: " << gpu_ms << " ms" << std::endl;
 
