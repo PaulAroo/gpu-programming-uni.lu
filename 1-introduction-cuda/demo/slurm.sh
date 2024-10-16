@@ -12,7 +12,7 @@
 module load system/CUDA
 
 # Compile the code.
-nvcc block_min.cu -arch=sm_70 -std=c++17 -O3 -o block_min
+nvcc grid_min_shared.cu -arch=sm_70 -std=c++17 -O3 -o grid_min_shared
 
 # Execute the code. Anything output will be stored in slurm.out (see above).
-./block_min 10 3
+./grid_min_shared 100000000 256 256

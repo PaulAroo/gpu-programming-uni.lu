@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 
   size_t shared_mem_size = sizeof(int) * threads_per_block;
   long gpu_strided_shared_ms = benchmark_ms([&]{
-    grid_min<true><<<num_blocks, threads_per_block, shared_mem_size>>>(v, n, local_min);
+    grid_min_shared<<<num_blocks, threads_per_block, shared_mem_size>>>(v, n, local_min);
     CUDIE(cudaDeviceSynchronize());
   });
   std::cout << "GPU (contiguous memory accesses, shared memory): " << gpu_strided_shared_ms << " ms" << std::endl;

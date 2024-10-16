@@ -4,6 +4,15 @@
 #include <stdlib.h>
 #include <cstdio>
 
+void scan_sequential(int* arr, int* new_arr, int identity_element, size_t arr_size) {
+  new_arr[0] = identity_element;
+
+  for(size_t i = 1; i < arr_size; ++i) {
+    new_arr[i] = arr[i - 1] + new_arr[i];
+  }
+
+}
+
 
 __global__ void accu_sum(int* arr, int* arr_acc, size_t size) {
   for(size_t i = 0; i < size; ++i) {
